@@ -444,3 +444,15 @@ input[type="text"], input[type="password"] {
 .undo-pill {
   bottom: calc(104px + env(safe-area-inset-bottom, 0px));
 }
+
+/* FIX DRAWER CLOSE BUTTON CLEARANCE UNDER STATUS BAR */
+.drawer {
+  padding-top: calc(14px + env(safe-area-inset-top, 28px));
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+#btnCloseDrawer {
+  min-width: 44px;
+  min-height: 44px;
+  font-size: 18px;
+}

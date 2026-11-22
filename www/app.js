@@ -469,3 +469,21 @@ function setEditorModeByFilename(filename) {
     editor.setOption('mode', 'htmlmixed');
   }
 }
+
+// Intercept Android Back gesture/button so it closes open overlays instead of exiting the app
+document.addEventListener('backbutton', (e) => {
+  const pushModal = document.getElementById('pushModal');
+  const sideDrawer = document.getElementById('sideDrawer');
+  const previewContainer = document.getElementById('previewContainer');
+
+  if (!pushModal.classList.contains('hidden')) {
+    e.preventDefault();
+    pushModal.classList.add('hidden');
+  } else if (!sideDrawer.classList.contains('hidden')) {
+    e.preventDefault();
+    sideDrawer.classList.add('hidden');
+  } else if (!previewContainer.classList.contains('hidden')) {
+    e.preventDefault();
+    previewContainer.classList.add('hidden');
+  }
+}, false);
