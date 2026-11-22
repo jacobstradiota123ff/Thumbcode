@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="midnight">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>ThumbCode IDE</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- CodeMirror 5/6 Lightweight Standalone Bundle via CDN with offline fallback -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+</head>
+<body>
+  <!-- TOP WORKSPACE BAR -->
+  <header class="topbar">
+    <div class="brand-group">
+      <button id="btnFiles" class="icon-btn" title="Files & Repos">☰</button>
+      <div class="file-meta">
+        <span id="activeFileName" class="file-name">index.html</span>
+        <span id="repoBadge" class="repo-badge">Local Sandbox</span>
+      </div>
+    </div>
+
+    <div class="action-group">
+      <button id="btnTheme" class="pill-btn" title="Toggle Sunlight High-Contrast">☀️</button>
+      <button id="btnPreview" class="pill-btn">▶ Run</button>
+      <button id="btnPush" class="pill-btn primary-btn">↑ Push</button>
+    </div>
+  </header>
+
+  <!-- GITHUB ACTIONS STATUS STRIP -->
+  <div id="ciStrip" class="ci-strip hidden">
+    <span id="ciDot" class="ci-dot"></span>
+    <span id="ciText">GitHub Actions: Idle</span>
+    <button id="btnRefreshCI" class="mini-link">Refresh</button>
+  </div>
+
+  <!-- MAIN EDITOR / PREVIEW AREA -->
+  <main class="workspace">
+    <div id="editorContainer" class="editor-container">
+      <textarea id="codeArea"></textarea>
+    </div>
+
+    <!-- LIVE WEBVIEW SANDBOX -->
+    <div id="previewContainer" class="preview-container hidden">
+      <div class="preview-header">
+        <span>Live WebView Sandbox</span>
+        <button id="btnClosePreview" class="pill-btn">✕ Editor</button>
+      </div>
+      <iframe id="sandboxFrame" sandbox="allow-scripts allow-modals"></iframe>
+    </div>
+  </main>
+
+  <!-- FLOATING 2-TIER UNDO/REDO PILL -->
+  <div class="undo-pill">
+    <button id="btnUndoChar" class="undo-btn" title="Char Undo">↶ Char</button>
+    <button id="btnUndoBlock" class="undo-btn accent-undo" title="Line/Block Undo">⤺ Block</button>
+    <button id="btnRedo" class="undo-btn" title="Redo">↷</button>
+  </div>
+
+  <!-- BOTTOM THUMB DECK (2C: MACRO ROW + CONTEXT SYMBOL ROW) -->
+  <footer class="thumb-deck">
+    <!-- Row 1: 4 Programmable Macros -->
+    <div class="deck-row macro-row" id="macroRow"></div>
+    <!-- Row 2: Tactile Code Symbols & Cursor Nav -->
+    <div class="deck-row symbol-row" id="symbolRow">
+      <button class="key-btn nav-key" data-action="tab">⇥</button>
+      <button class="key-btn" data-insert="{">{</button>
+      <button class="key-btn" data-insert="}">}</button>
+      <button class="key-btn" data-insert="(">(</button>
+      <button class="key-btn" data-insert=")">)</button>
+      <button class="key-btn" data-insert="[">[</button>
+      <button class="key-btn" data-insert="]">]</button>
+      <button class="key-btn" data-insert=";">;</button>
+      <button class="key-btn" data-insert="=">=</button>
+      <button class="key-btn" data-insert="=>">=&gt;</button>
+      <button class="key-btn" data-insert='"'>"</button>
+      <button class="key-btn" data-insert="'">'</button>
+      <button class="key-btn nav-key" data-action="left">◀</button>
+      <button class="key-btn nav-key" data-action="right">▶</button>
+    </div>
+  </footer>
+
+  <!-- DRAWER: GITHUB REPOS & DEVICE STORAGE -->
+  <aside id="sideDrawer" class="drawer hidden">
+    <div class="drawer-header">
+      <h2>Workspace</h2>
+      <button id="btnCloseDrawer" class="icon-btn">✕</button>
+    </div>
+
+    <div class="drawer-tabs">
+      <button class="tab-btn active" data-tab="githubTab">GitHub API</button>
+      <button class="tab-btn" data-tab="localTab">Device Files</button>
+      <button class="tab-btn" data-tab="macroTab">Macros</button>
+    </div>
+
+    <!-- TAB 1: GITHUB API -->
+    <div id="githubTab" class="tab-panel">
+      <label class="field-label">GitHub Personal Access Token (repo scope)</label>
+      <div class="input-row">
+        <input id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxx" />
+        <button id="btnSaveToken" class="pill-btn primary-btn">Connect</button>
+      </div>
+
+      <label class="field-label">Repository (owner/repo)</label>
+      <div class="input-row">
+        <input id="ghRepo" type="text" placeholder="jacobstradiota123ff/fieldfind" />
+        <button id="btnLoadRepo" class="pill-btn">Load</button>
+      </div>
+
+      <label class="field-label">Branch</label>
+      <input id="ghBranch" type="text" value="main" />
+
+      <div id="repoFileList" class="file-list"></div>
+    </div>
+
+    <!-- TAB 2: LOCAL DEVICE STORAGE -->
+    <div id="localTab" class="tab-panel hidden">
+      <div class="input-row">
+        <input id="newLocalFileName" type="text" placeholder="app.js" />
+        <button id="btnNewLocalFile" class="pill-btn primary-btn">+ File</button>
+      </div>
+      <button id="btnLoadDeviceDir" class="pill-btn full-width">Scan Device Documents/ThumbCode</button>
+      <div id="localFileList" class="file-list"></div>
+    </div>
+
+    <!-- TAB 3: CUSTOM MACRO EDITOR -->
+    <div id="macroTab" class="tab-panel hidden">
+      <p class="hint-text">Customize your 4 thumb-deck quick macros:</p>
+      <div id="macroEditorList"></div>
+      <button id="btnSaveMacros" class="pill-btn primary-btn full-width">Save Thumb Macros</button>
+    </div>
+  </aside>
+
+  <!-- COMMIT & PUSH MODAL -->
+  <div id="pushModal" class="modal hidden">
+    <div class="modal-card">
+      <h3>1-Tap GitHub Commit & Push</h3>
+      <p id="pushTargetLabel" class="hint-text">Target: Not connected</p>
+      <label class="field-label">Commit Message</label>
+      <input id="commitMsg" type="text" value="Update via ThumbCode mobile IDE" />
+      <div class="modal-actions">
+        <button id="btnCancelPush" class="pill-btn">Cancel</button>
+        <button id="btnConfirmPush" class="pill-btn primary-btn">Commit & Push</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <clipPath id="thumbClip">
+      <!-- Stylized Geometric Thumbs-Up Silhouette -->
+      <path d="M 300 470 L 300 820 L 210 820 Q 180 820 180 790 L 180 500 Q 180 470 210 470 Z
+               M 340 470 L 455 245 Q 480 200 525 215 Q 565 230 555 280 L 520 420
+               L 765 420 Q 825 420 825 475 Q 825 510 795 525
+               Q 835 540 830 585 Q 825 620 790 632
+               Q 820 650 810 692 Q 800 725 765 735
+               Q 785 755 770 790 Q 755 820 710 820
+               L 340 820 Z" />
+    </clipPath>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded App Icon Background -->
+  <rect width="1024" height="1024" rx="220" fill="url(#bgGrad)" />
+  <rect x="24" y="24" width="976" height="976" rx="200" fill="none" stroke="#30363d" stroke-width="8" />
+
+  <!-- Faint Blueprint Outline of the Thumbs-Up -->
+  <path d="M 300 470 L 300 820 L 210 820 Q 180 820 180 790 L 180 500 Q 180 470 210 470 Z
+           M 340 470 L 455 245 Q 480 200 525 215 Q 565 230 555 280 L 520 420
+           L 765 420 Q 825 420 825 475 Q 825 510 795 525
+           Q 835 540 830 585 Q 825 620 790 632
+           Q 820 650 810 692 Q 800 725 765 735
+           Q 785 755 770 790 Q 755 820 710 820
+           L 340 820 Z"
+        fill="#161b22" stroke="#2f81f7" stroke-width="10" stroke-opacity="0.55" />
+
+  <!-- Syntax-Highlighted Code Lines Clipped Inside the Thumbs-Up -->
+  <g clip-path="url(#thumbClip)" font-family="monospace" font-weight="bold" font-size="25">
+    <!-- Thumb Tip Code Blocks -->
+    <rect x="430" y="235" width="120" height="18" rx="6" fill="#ff7b72"/>
+    <rect x="415" y="270" width="145" height="18" rx="6" fill="#79c0ff"/>
+    <rect x="395" y="305" width="150" height="18" rx="6" fill="#3fb950"/>
+    <rect x="375" y="340" width="160" height="18" rx="6" fill="#d2a8ff"/>
+    <rect x="355" y="375" width="175" height="18" rx="6" fill="#79c0ff"/>
+
+    <!-- Cuff & Palm Syntax Lines -->
+    <rect x="190" y="435" width="95" height="18" rx="6" fill="#2f81f7"/>
+    <text x="345" y="452" fill="#ff7b72">const</text>
+    <text x="430" y="452" fill="#e6edf3">thumb = () =&gt; {</text>
+
+    <rect x="190" y="475" width="95" height="18" rx="6" fill="#3fb950"/>
+    <text x="360" y="492" fill="#79c0ff">if</text>
+    <text x="398" y="492" fill="#e6edf3">(oneHanded &amp;&amp; mobile) {</text>
+
+    <!-- EASTER EGG REWARD LINE (Readable when zoomed in!) -->
+    <rect x="190" y="515" width="95" height="18" rx="6" fill="#d29922"/>
+    <text x="355" y="532" fill="#8b949e">// Macro 1 secret code:</text>
+
+    <rect x="190" y="555" width="95" height="18" rx="6" fill="#d29922"/>
+    <text x="355" y="572" fill="#ff7b72">const</text>
+    <text x="440" y="572" fill="#f2cc60">EGG = "FORGE-GOLD";</text>
+
+    <rect x="190" y="595" width="95" height="18" rx="6" fill="#79c0ff"/>
+    <text x="360" y="612" fill="#3fb950">return</text>
+    <text x="460" y="612" fill="#a5d6ff">git.push("ship");</text>
+
+    <rect x="190" y="635" width="95" height="18" rx="6" fill="#d2a8ff"/>
+    <text x="355" y="652" fill="#e6edf3">  }</text>
+    <rect x="415" y="635" width="180" height="18" rx="6" fill="#2f81f7"/>
+    <rect x="610" y="635" width="170" height="18" rx="6" fill="#3fb950"/>
+
+    <rect x="190" y="675" width="95" height="18" rx="6" fill="#3fb950"/>
+    <rect x="345" y="675" width="130" height="18" rx="6" fill="#ff7b72"/>
+    <rect x="490" y="675" width="290" height="18" rx="6" fill="#79c0ff"/>
+
+    <rect x="190" y="715" width="95" height="18" rx="6" fill="#2f81f7"/>
+    <rect x="345" y="715" width="210" height="18" rx="6" fill="#d2a8ff"/>
+    <rect x="570" y="715" width="190" height="18" rx="6" fill="#f2cc60"/>
+
+    <rect x="190" y="755" width="95" height="18" rx="6" fill="#ff7b72"/>
+    <rect x="345" y="755" width="160" height="18" rx="6" fill="#3fb950"/>
+    <rect x="520" y="755" width="220" height="18" rx="6" fill="#2f81f7"/>
+
+    <rect x="190" y="795" width="95" height="18" rx="6" fill="#79c0ff"/>
+    <text x="345" y="810" fill="#e6edf3">};</text>
+    <rect x="395" y="795" width="310" height="18" rx="6" fill="#30363d"/>
+  </g>
+</svg>

@@ -1,0 +1,17 @@
+{
+  "name": "thumbcode",
+  "version": "1.0.0",
+  "description": "Thumb-first mobile IDE with direct GitHub API push and custom macro deck",
+  "main": "www/index.html",
+  "scripts": {
+    "sync": "npx cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2",
+    "@capacitor/filesystem": "^6.0.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2"
+  }
+}
