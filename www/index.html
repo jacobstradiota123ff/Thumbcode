@@ -1,158 +1,197 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="midnight">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>ThumbCode IDE</title>
-  <link rel="stylesheet" href="styles.css" />
-  <!-- CodeMirror 5/6 Lightweight Standalone Bundle via CDN with offline fallback -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ThumbCode</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --panel: #181b24;
+      --border: #2a2f3d;
+      --accent: #3b82f6;
+      --accent-2: #10b981;
+      --warn: #f59e0b;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0; padding: 0; height: 100dvh; overflow: hidden;
+      background: var(--bg); color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      display: flex; flex-direction: column;
+    }
+    /* Top Action Bar */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 10px; background: var(--panel); border-bottom: 1px solid var(--border);
+      gap: 6px; flex-shrink: 0;
+    }
+    .brand { font-weight: 800; font-size: 14px; letter-spacing: 0.4px; color: var(--accent); }
+    .top-actions { display: flex; gap: 6px; align-items: center; }
+    .pill-btn {
+      background: #232836; color: var(--text); border: 1px solid var(--border);
+      border-radius: 8px; padding: 7px 10px; font-size: 12px; font-weight: 600;
+      min-height: 36px; display: inline-flex; align-items: center; gap: 4px;
+    }
+    .pill-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .pill-btn.sync { background: #133929; border-color: var(--accent-2); color: #6ee7b7; }
+
+    /* Time Machine Bar */
+    .tm-bar {
+      display: none; flex-direction: column; gap: 6px;
+      padding: 8px 10px; background: #141821; border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .tm-bar.open { display: flex; }
+    .tm-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; }
+    .tm-bar input[type="range"] { flex: 1; accent-color: var(--warn); height: 28px; }
+
+    /* Peepers Live Preview */
+    .peepers-box {
+      display: none; flex-direction: column; height: 34dvh;
+      border-bottom: 2px solid var(--accent); background: #fff; flex-shrink: 0;
+    }
+    .peepers-box.open { display: flex; }
+    .peepers-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 4px 10px; background: #1e2330; color: var(--text); font-size: 11px;
+    }
+    #peepers-frame { width: 100%; flex: 1; border: none; background: #fff; }
+
+    /* Editor Workspace */
+    #editor-wrap { flex: 1; overflow: hidden; position: relative; }
+    .cm-editor { height: 100%; font-size: 15px; }
+    .cm-scroller { overflow: auto; }
+
+    /* Bottom-Docked Thumb Deck */
+    .thumb-deck {
+      background: var(--panel); border-top: 1px solid var(--border);
+      padding: 6px; display: flex; flex-direction: column; gap: 6px;
+      flex-shrink: 0; user-select: none;
+    }
+    .deck-row {
+      display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px;
+    }
+    .t-key {
+      background: #252b3b; color: var(--text); border: 1px solid #32394e;
+      border-radius: 8px; min-height: 44px; font-size: 16px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .t-key:active { background: var(--accent); color: #fff; transform: scale(0.96); }
+    .t-key.nav { background: #1d263b; color: #93c5fd; }
+    .t-key.act { background: #2d2438; color: #d8b4fe; font-size: 13px; }
+
+    /* GitHub Config Drawer */
+    .modal {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+      z-index: 50; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal.open { display: flex; }
+    .modal-card {
+      width: 100%; max-width: 420px; background: var(--panel);
+      border: 1px solid var(--border); border-radius: 12px; padding: 16px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .modal-card h3 { margin: 0; font-size: 16px; }
+    .modal-card label { font-size: 12px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
+    .modal-card input {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text);
+      border-radius: 8px; padding: 10px; font-size: 14px;
+    }
+    .status-toast {
+      position: fixed; top: 52px; right: 10px; background: #1e293b;
+      border: 1px solid var(--accent); color: #fff; padding: 8px 12px;
+      border-radius: 8px; font-size: 12px; z-index: 60; display: none;
+    }
+  </style>
 </head>
 <body>
-  <!-- TOP WORKSPACE BAR -->
-  <header class="topbar">
-    <div class="brand-group">
-      <button id="btnFiles" class="icon-btn" title="Files & Repos">☰</button>
-      <div class="file-meta">
-        <span id="activeFileName" class="file-name">index.html</span>
-        <span id="repoBadge" class="repo-badge">Local Sandbox</span>
-      </div>
+  <div class="topbar">
+    <span class="brand">THUMBCODE</span>
+    <div class="top-actions">
+      <button class="pill-btn" id="btn-peepers">👁 Peepers</button>
+      <button class="pill-btn" id="btn-tm">⏪ Time</button>
+      <button class="pill-btn sync" id="btn-push">☁ Push</button>
+      <button class="pill-btn" id="btn-gh-cfg">⚙</button>
     </div>
-
-    <div class="action-group">
-      <button id="btnTheme" class="pill-btn" title="Toggle Sunlight High-Contrast">☀️</button>
-      <button id="btnPreview" class="pill-btn">▶ Run</button>
-      <button id="btnPush" class="pill-btn primary-btn">↑ Push</button>
-    </div>
-  </header>
-
-  <!-- GITHUB ACTIONS STATUS STRIP -->
-  <div id="ciStrip" class="ci-strip hidden">
-    <span id="ciDot" class="ci-dot"></span>
-    <span id="ciText">GitHub Actions: Idle</span>
-    <button id="btnRefreshCI" class="mini-link">Refresh</button>
   </div>
 
-  <!-- MAIN EDITOR / PREVIEW AREA -->
-  <main class="workspace">
-    <div id="editorContainer" class="editor-container">
-      <textarea id="codeArea"></textarea>
+  <!-- Two-Tier Time Machine Bar -->
+  <div class="tm-bar" id="tm-bar">
+    <div class="tm-row">
+      <span id="tm-label">Tier 1 Snapshot: 1 / 1</span>
+      <button class="pill-btn" id="btn-tm-restore">Restore Step</button>
     </div>
-
-    <!-- LIVE WEBVIEW SANDBOX -->
-    <div id="previewContainer" class="preview-container hidden">
-      <div class="preview-header">
-        <span>Live WebView Sandbox</span>
-        <button id="btnClosePreview" class="pill-btn">✕ Editor</button>
-      </div>
-      <iframe id="sandboxFrame" sandbox="allow-scripts allow-modals"></iframe>
+    <input type="range" id="tm-slider" min="0" max="0" value="0" />
+    <div class="tm-row">
+      <span>Tier 2 GitHub Remote:</span>
+      <button class="pill-btn" id="btn-gh-pull">Pull Latest</button>
+      <button class="pill-btn" id="btn-gh-prev-commit">Rollback 1 Commit</button>
     </div>
-  </main>
-
-  <!-- FLOATING 2-TIER UNDO/REDO PILL -->
-  <div class="undo-pill">
-    <button id="btnUndoChar" class="undo-btn" title="Char Undo">↶ Char</button>
-    <button id="btnUndoBlock" class="undo-btn accent-undo" title="Line/Block Undo">⤺ Block</button>
-    <button id="btnRedo" class="undo-btn" title="Redo">↷</button>
   </div>
 
-  <!-- BOTTOM THUMB DECK (2C: MACRO ROW + CONTEXT SYMBOL ROW) -->
-  <footer class="thumb-deck">
-    <!-- Row 1: 4 Programmable Macros -->
-    <div class="deck-row macro-row" id="macroRow"></div>
-    <!-- Row 2: Tactile Code Symbols & Cursor Nav -->
-    <div class="deck-row symbol-row" id="symbolRow">
-      <button class="key-btn nav-key" data-action="tab">⇥</button>
-      <button class="key-btn" data-insert="{">{</button>
-      <button class="key-btn" data-insert="}">}</button>
-      <button class="key-btn" data-insert="(">(</button>
-      <button class="key-btn" data-insert=")">)</button>
-      <button class="key-btn" data-insert="[">[</button>
-      <button class="key-btn" data-insert="]">]</button>
-      <button class="key-btn" data-insert=";">;</button>
-      <button class="key-btn" data-insert="=">=</button>
-      <button class="key-btn" data-insert="=>">=&gt;</button>
-      <button class="key-btn" data-insert='"'>"</button>
-      <button class="key-btn" data-insert="'">'</button>
-      <button class="key-btn nav-key" data-action="left">◀</button>
-      <button class="key-btn nav-key" data-action="right">▶</button>
+  <!-- Peepers Live Thumbnail / Mobile Viewport Preview -->
+  <div class="peepers-box" id="peepers-box">
+    <div class="peepers-header">
+      <span>PEEPERS LIVE VIEWPORT</span>
+      <button class="pill-btn" style="min-height:24px;padding:2px 8px;" id="btn-peepers-refresh">↻ Run</button>
     </div>
-  </footer>
+    <iframe id="peepers-frame" sandbox="allow-scripts"></iframe>
+  </div>
 
-  <!-- DRAWER: GITHUB REPOS & DEVICE STORAGE -->
-  <aside id="sideDrawer" class="drawer hidden">
-    <div class="drawer-header">
-      <h2>Workspace</h2>
-      <button id="btnCloseDrawer" class="icon-btn">✕</button>
+  <!-- CodeMirror 6 Mount -->
+  <div id="editor-wrap"></div>
+
+  <!-- Bottom-Docked Thumb Deck -->
+  <div class="thumb-deck">
+    <div class="deck-row">
+      <button class="t-key nav" data-move="left">◀</button>
+      <button class="t-key nav" data-move="down">▼</button>
+      <button class="t-key nav" data-move="up">▲</button>
+      <button class="t-key nav" data-move="right">▶</button>
+      <button class="t-key act" data-action="tab">TAB</button>
+      <button class="t-key act" data-action="undo">UNDO</button>
+      <button class="t-key act" data-action="redo">REDO</button>
+      <button class="t-key act" data-action="selectLine">LINE</button>
     </div>
-
-    <div class="drawer-tabs">
-      <button class="tab-btn active" data-tab="githubTab">GitHub API</button>
-      <button class="tab-btn" data-tab="localTab">Device Files</button>
-      <button class="tab-btn" data-tab="macroTab">Macros</button>
+    <div class="deck-row">
+      <button class="t-key" data-insert="{">{</button>
+      <button class="t-key" data-insert="}">}</button>
+      <button class="t-key" data-insert="(">(</button>
+      <button class="t-key" data-insert=")">)</button>
+      <button class="t-key" data-insert=";">;</button>
+      <button class="t-key" data-insert="=">=</button>
+      <button class="t-key" data-insert='"'>"</button>
+      <button class="t-key" data-insert="'">'</button>
     </div>
+  </div>
 
-    <!-- TAB 1: GITHUB API -->
-    <div id="githubTab" class="tab-panel">
-      <label class="field-label">GitHub Personal Access Token (repo scope)</label>
-      <div class="input-row">
-        <input id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxx" />
-        <button id="btnSaveToken" class="pill-btn primary-btn">Connect</button>
-      </div>
-
-      <label class="field-label">Repository (owner/repo)</label>
-      <div class="input-row">
-        <input id="ghRepo" type="text" placeholder="jacobstradiota123ff/fieldfind" />
-        <button id="btnLoadRepo" class="pill-btn">Load</button>
-      </div>
-
-      <label class="field-label">Branch</label>
-      <input id="ghBranch" type="text" value="main" />
-
-      <div id="repoFileList" class="file-list"></div>
-    </div>
-
-    <!-- TAB 2: LOCAL DEVICE STORAGE -->
-    <div id="localTab" class="tab-panel hidden">
-      <div class="input-row">
-        <input id="newLocalFileName" type="text" placeholder="app.js" />
-        <button id="btnNewLocalFile" class="pill-btn primary-btn">+ File</button>
-      </div>
-      <button id="btnLoadDeviceDir" class="pill-btn full-width">Scan Device Documents/ThumbCode</button>
-      <div id="localFileList" class="file-list"></div>
-    </div>
-
-    <!-- TAB 3: CUSTOM MACRO EDITOR -->
-    <div id="macroTab" class="tab-panel hidden">
-      <p class="hint-text">Customize your 4 thumb-deck quick macros:</p>
-      <div id="macroEditorList"></div>
-      <button id="btnSaveMacros" class="pill-btn primary-btn full-width">Save Thumb Macros</button>
-    </div>
-  </aside>
-
-  <!-- COMMIT & PUSH MODAL -->
-  <div id="pushModal" class="modal hidden">
+  <!-- GitHub API Sync Config Modal -->
+  <div class="modal" id="gh-modal">
     <div class="modal-card">
-      <h3>1-Tap GitHub Commit & Push</h3>
-      <p id="pushTargetLabel" class="hint-text">Target: Not connected</p>
-      <label class="field-label">Commit Message</label>
-      <input id="commitMsg" type="text" value="Update via ThumbCode mobile IDE" />
-      <div class="modal-actions">
-        <button id="btnCancelPush" class="pill-btn">Cancel</button>
-        <button id="btnConfirmPush" class="pill-btn primary-btn">Commit & Push</button>
+      <h3>GitHub Direct Sync</h3>
+      <label>GitHub Owner / Username
+        <input id="gh-owner" placeholder="jacobstradiota123ff" />
+      </label>
+      <label>Repository Name
+        <input id="gh-repo" placeholder="thumbcode" />
+      </label>
+      <label>Target File Path
+        <input id="gh-path" placeholder="www/app.js" />
+      </label>
+      <label>Personal Access Token (repo scope)
+        <input id="gh-token" type="password" placeholder="ghp_xxxxxxxxxxxx" />
+      </label>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px;">
+        <button class="pill-btn" id="btn-gh-close">Close</button>
+        <button class="pill-btn sync" id="btn-gh-save">Save Config</button>
       </div>
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION -->
-  <div id="toast" class="toast hidden"></div>
-
-  <script src="app.js"></script>
+  <div class="status-toast" id="toast"></div>
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
